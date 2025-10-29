@@ -63,10 +63,15 @@ on:
           - clang
           - gcc
           - gcc-14.2
-      compress_format:
-        description: "link target repo"
+      target_repo:
+        description: "Pilih repo tujuan upload (tes-rep, DIRGHA80, HOUJIE80)"
         required: false
-        default: "Dirgha80/kernel"
+        default: "tes-rep/kernel"
+        type: choice
+        options:
+          - tes-rep/kernel
+          - Dirgha80/kernel
+          - Houjie80/kernel2
       kernel_sign:
         description: "Set the kernel custom signature"
         required: false
