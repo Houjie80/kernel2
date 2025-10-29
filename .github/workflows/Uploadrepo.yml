@@ -66,12 +66,12 @@ on:
       target_repo:
         description: "Pilih repo tujuan upload (tes-rep, DIRGHA80, HOUJIE80)"
         required: false
-        default: "tes-rep/kernel"
+        default: "tes-rep"
         type: choice
         options:
-          - tes-rep/kernel
-          - Dirgha80/kernel
-          - Houjie80/kernel2
+          - tes-rep
+          - Dirgha80
+          - Houjie80
       kernel_sign:
         description: "Set the kernel custom signature"
         required: false
@@ -114,6 +114,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set Token and Target Repo
+        id: choose_target
+        run: |
+          case "${{ github.event.inputs.target_repo }}" in
+            tes-rep)
+              echo "PAT=${{ secrets.TARGET_REPO_TES }}" >> $GITHUB_ENV
+              echo "REPO_TARGET=tes-rep/kernel" >> $GITHUB_ENV ;;
+            DIRGHA80)
+              echo "PAT=${{ secrets.TARGET_REPO_DIRGHA80 }}" >> $GITHUB_ENV
+              echo "REPO_TARGET=Dirgha80/kernel" >> $GITHUB_ENV ;;
+            HOUJIE80)
+              echo "PAT=${{ secrets.TARGET_REPO_HOUJIE80 }}" >> $GITHUB_ENV
+              echo "REPO_TARGET=Houjie80/kernel2" >> $GITHUB_ENV ;;
+            *)
+              echo "::error ::Pilihan repo tidak valid!"; exit 1 ;;
+          esac
+  
       - name: Initialization environment
         id: init
         env:
@@ -207,10 +224,10 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: ${{ env.PACKAGED_STATUS == 'success' || success() }} && !cancelled()
         env:
-          GITHUB_TOKEN: ${{ secrets.UPLOAD_PAT }}
+          GITHUB_TOKEN: ${{ env.PAT }}
         with:
           tag_name: kernel_${{ inputs.kernel_mu }}
-          repository: ${{ inputs.compress_format }}  # GANTI dengan repo tujuan kamu
+          repository: ${{ env.REPO_TARGET }}  # GANTI dengan repo tujuan kamu
           name: Kernel_${{ inputs.kernel_mu }}
           body: |
             ### Kernel Build Information
