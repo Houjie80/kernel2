@@ -17,7 +17,7 @@ on:
           - tes-rep
           - tes-rep@tes
           - feryw@dev
-          - feryw/linux@amlogic-5.4
+          - feryw/linux@aml-5.4
           - sib0ndt/linux-6.1.66
       kernel_version:
         description: "Select kernel version"
