@@ -69,7 +69,8 @@ jobs:
               echo "PAT=${{ secrets.TARGET_REPO_HOUJIE80 }}" >> $GITHUB_ENV
               echo "REPO_TARGET=Houjie80/kernel2" >> $GITHUB_ENV ;;
             *)
-              echo "::error    
+              echo "::error ::Pilihan repo tidak valid!"; exit 1 ;;
+          esac
 
 
       - name: Download kernel
