@@ -116,5 +116,4 @@ jobs:
             | **S905X4** | **ADVAN AT01**<br>**AKARI** | **OFF**<br>**OFF** |
             | **S905x2** | **HG680FJ** | **NOT TEST** (`-`) |
 
-          files: |
-            /build/*    
+          files: build/*    
