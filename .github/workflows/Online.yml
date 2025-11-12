@@ -93,3 +93,28 @@ jobs:
             | **S905x**  | **HG680P**<br>**B860H** | **ON**<br>**NOT TEST** |
             | **S905X4** | **ADVAN AT01**<br>**AKARI** | **OFF**<br>**OFF** |
             | **S905x2** | **HG680FJ** | **NOT TEST** (`-`) |
+
+      - name: Upload Kernel to Release (repo lain)
+        uses: softprops/action-gh-release@v1
+        if: ${{ env.PACKAGED_STATUS == 'success' || success() }} && !cancelled()
+        env:
+          GITHUB_TOKEN: ${{ env.PAT }}
+        with:
+          tag_name: kernel_${{ inputs.kernel_mu }}
+          repository: ${{ env.REPO_TARGET }}  # GANTI dengan repo tujuan kamu
+          name: Kernel_${{ inputs.kernel_mu }}
+          body: |
+            ### Kernel Build Information
+            - Version: `${{ inputs.kernel_version }}`
+            - Toolchain: `${{ inputs.kernel_toolchain }}`
+            - Signature: `${{ inputs.kernel_sign }}`
+            - Kernel Type: `${{ inputs.kernel_mu }}`
+            ## Supported Devices
+            | Amlogic | MODEL | WIFI |
+            | -------- | ------- | ------- |
+            | **S905x**  | **HG680P**<br>**B860H** | **ON**<br>**NOT TEST** |
+            | **S905X4** | **ADVAN AT01**<br>**AKARI** | **OFF**<br>**OFF** |
+            | **S905x2** | **HG680FJ** | **NOT TEST** (`-`) |
+
+          files: |
+            /build/*    
