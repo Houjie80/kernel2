@@ -101,7 +101,7 @@ jobs:
           GITHUB_TOKEN: ${{ env.PAT }}
         with:
           tag_name: kernel_${{ inputs.kernel_mu }}
-          repository: ${{ env.REPO_TARGET }}  # GANTI dengan repo tujuan kamu
+          repository: tes-rep/kernel  # GANTI dengan repo tujuan kamu
           name: Kernel_${{ inputs.kernel_mu }}
           body: |
             ### Kernel Build Information
