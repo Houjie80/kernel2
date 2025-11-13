@@ -152,7 +152,10 @@ jobs:
             echo -e "${RED}❌ Tidak ada file .tar.gz di folder final untuk dikompresi!${NC}"
             exit 1
           fi
-
+           echo -e "${YELLOW}🔐 Menghitung checksum SHA256...${NC}"
+          cd /workdir/build
+          sudo sha256sum ${{ inputs.rename_rootfs }}.tar.gz | tee ${{ inputs.rename_rootfs }}.sha256
+          echo -e "${GREEN}✅ SHA256 checksum dibuat.${NC}"
           
 
 
