@@ -143,20 +143,17 @@ jobs:
           mkdir -p /workdir/build
 
           if ls *.tar.gz >/dev/null 2>&1; then
-            sudo tar -czf /workdir/build/final-${{ inputs.rename_rootfs }}.tar.gz ./* || {
+            sudo tar -czf /workdir/build/${{ inputs.rename_rootfs }}.tar.gz ./* || {
               echo -e "${RED}❌ Gagal membuat arsip final${NC}"
               exit 1
             }
-            echo -e "${GREEN}✅ Final archive berhasil dibuat: /workdir/build/final-${{ inputs.rename_rootfs }}.tar.gz${NC}"
+            echo -e "${GREEN}✅ Final archive berhasil dibuat: /workdir/build/${{ inputs.rename_rootfs }}.tar.gz${NC}"
           else
             echo -e "${RED}❌ Tidak ada file .tar.gz di folder final untuk dikompresi!${NC}"
             exit 1
           fi
 
-          echo -e "${YELLOW}🔐 Menghitung checksum SHA256...${NC}"
-          cd /workdir/build
-          sha256sum final-${{ inputs.rename_rootfs }}.tar.gz | tee final-${{ inputs.rename_rootfs }}.sha256
-          echo -e "${GREEN}✅ SHA256 checksum dibuat.${NC}"
+          
 
 
       - name: Upload release asset
