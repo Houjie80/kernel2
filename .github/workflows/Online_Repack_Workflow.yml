@@ -91,33 +91,73 @@ jobs:
 
       - name: Extract, Repack Nested Archives, Generate SHA256, and Final Bundle
         run: |
-          mkdir -p /workdir/extracted
-          mkdir -p /workdir/final
-          sudo tar -xzf /workdir/build/file.tar.gz -C /workdir/extracted
-          echo "✅ File utama diekstrak"
+          set -e
+          GREEN="\033[1;32m"
+          YELLOW="\033[1;33m"
+          RED="\033[1;31m"
+          NC="\033[0m"
+
+          echo -e "${YELLOW}📂 Menyiapkan direktori kerja...${NC}"
+          mkdir -p /workdir/extracted /workdir/final /workdir/build
+
+          echo -e "${YELLOW}📦 Mengekstrak file utama...${NC}"
+          sudo tar -xzf /workdir/build/file.tar.gz -C /workdir/extracted || {
+            echo -e "${RED}❌ Gagal mengekstrak file utama!${NC}"
+            exit 1
+          }
+          echo -e "${GREEN}✅ File utama berhasil diekstrak${NC}"
 
           cd /workdir/extracted
 
-          for archive in $(find . -type f -name "*.tar.gz"); do
+          echo -e "${YELLOW}🔍 Mencari arsip .tar.gz di dalam...${NC}"
+          archives=$(find . -type f -name "*.tar.gz" || true)
+          if [ -z "$archives" ]; then
+            echo -e "${RED}❌ Tidak ditemukan arsip .tar.gz di dalam file utama.${NC}"
+            exit 1
+          fi
+
+          for archive in $archives; do
             dirname=$(dirname "$archive")
             filename=$(basename "$archive" .tar.gz)
             folder="$dirname/$filename"
+
+            echo -e "${YELLOW}📦 Mengekstrak: ${archive} -> ${folder}${NC}"
             mkdir -p "$folder"
-            echo "📦 Mengekstrak: $archive -> $folder"
-            sudo tar -xzf "$archive" -C "$folder"
+            sudo tar -xzf "$archive" -C "$folder" || {
+              echo -e "${RED}❌ Gagal mengekstrak $archive${NC}"
+              continue
+            }
 
-            echo "📦 Mengarsip ulang: $filename.tar.gz"
+            echo -e "${YELLOW}📦 Mengarsip ulang: ${filename}.tar.gz${NC}"
             cd "$folder"
-            sudo tar -czf /workdir/final/${filename}.tar.gz .
+            sudo tar -czf /workdir/final/${filename}.tar.gz . || {
+              echo -e "${RED}❌ Gagal mengarsip ulang ${filename}${NC}"
+              cd - > /dev/null
+              continue
+            }
             cd - > /dev/null
-
-        
           done
 
-          echo "📦 Mengarsip semua hasil ke final-${{ inputs.rename_rootfs }}.tar.gz"
+          echo -e "${YELLOW}🧩 Membuat bundel akhir...${NC}"
           cd /workdir/final
-          sudo tar -czf /workdir/final/*.tar.gz -C /workdir/build/${{ inputs.rename_rootfs }}.tar.gz
-          echo "✅ Final archive berhasil dibuat: final-${{ inputs.rename_rootfs }}.tar.gz"
+          mkdir -p /workdir/build
+
+          if ls *.tar.gz >/dev/null 2>&1; then
+            sudo tar -czf /workdir/build/final-${{ inputs.rename_rootfs }}.tar.gz ./* || {
+              echo -e "${RED}❌ Gagal membuat arsip final${NC}"
+              exit 1
+            }
+            echo -e "${GREEN}✅ Final archive berhasil dibuat: /workdir/build/final-${{ inputs.rename_rootfs }}.tar.gz${NC}"
+          else
+            echo -e "${RED}❌ Tidak ada file .tar.gz di folder final untuk dikompresi!${NC}"
+            exit 1
+          fi
+
+          echo -e "${YELLOW}🔐 Menghitung checksum SHA256...${NC}"
+          cd /workdir/build
+          sha256sum final-${{ inputs.rename_rootfs }}.tar.gz | tee final-${{ inputs.rename_rootfs }}.sha256
+          echo -e "${GREEN}✅ SHA256 checksum dibuat.${NC}"
+
 
       - name: Upload release asset
         uses: svenstaro/upload-release-action@v2
