@@ -24,6 +24,15 @@ on:
         description: "Rename rootfs"
         required: true
         default: ""
+      target_repo:
+        description: "Pilih repo tujuan upload (tes-rep, DIRGHA80, HOUJIE80)"
+        required: false
+        default: "tes-rep"
+        type: choice
+        options:
+          - tes-rep
+          - Dirgha80
+          - Houjie80  
 
 jobs:
   upload_kernel_release:
@@ -43,6 +52,23 @@ jobs:
           sudo pip3 install git+https://github.com/Juvenal-Yescas/mediafire-dl
           sudo mkdir -p /workdir/build
           sudo chown $USER:$GROUPS /workdir
+
+      - name: Set Token and Target Repo
+        id: choose_target
+        run: |
+          case "${{ github.event.inputs.target_repo }}" in
+            tes-rep)
+              echo "PAT=${{ secrets.TARGET_REPO_TES }}" >> $GITHUB_ENV
+              echo "REPO_TARGET=tes-rep/kernel" >> $GITHUB_ENV ;;
+            DIRGHA80)
+              echo "PAT=${{ secrets.TARGET_REPO_DIRGHA80 }}" >> $GITHUB_ENV
+              echo "REPO_TARGET=Dirgha80/kernel" >> $GITHUB_ENV ;;
+            HOUJIE80)
+              echo "PAT=${{ secrets.TARGET_REPO_HOUJIE80 }}" >> $GITHUB_ENV
+              echo "REPO_TARGET=Houjie80/kernel2" >> $GITHUB_ENV ;;
+            *)
+              echo "::error ::Pilihan repo tidak valid!"; exit 1 ;;
+          esac     
 
       - name: Download kernel
         run: |
