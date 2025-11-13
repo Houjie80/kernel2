@@ -123,9 +123,45 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/*.tar.gz
+          file: build/*
           tag: kernel_${{ inputs.kernel_mu }}
           file_glob: true
           overwrite: true
           body: |
-            ## KUMPULAN HASIL MALINK ROOTFS
+            - The kernel can be used to compile Armbian and OpenWrt.
+            - The kernel source code comes from: ${{ inputs.kernel_source }}
+            - The kernel compilation toolchain: ${{ inputs.kernel_toolchain }}
+            - The kernel version: ${{ inputs.kernel_version }}
+            - The kernel nama: ${{ inputs.kernel_sign }}
+            - This is a `${{ inputs.kernel_mu }}` kernel, which can be used in Armbian and OpenWrt.
+            - 这是`稳定版`内核，可以在 Armbian 和 OpenWrt 里使用。
+            ## Supported Devices
+            | Amlogic | MODEL | WIFI |
+            | -------- | ------- | ------- |
+            | **S905x**  | **HG680P**<br>**B860H** | **ON**<br>**NOT TEST** |
+            | **S905X4** | **ADVAN AT01**<br>**AKARI** | **OFF**<br>**OFF** |
+            | **S905x2** | **HG680FJ** | **NOT TEST** (`-`) |
+
+      - name: Upload Kernel to Release (repo lain)
+        uses: softprops/action-gh-release@v1
+        if: ${{ env.PACKAGED_STATUS == 'success' || success() }} && !cancelled()
+        env:
+          GITHUB_TOKEN: ${{ env.PAT }}
+        with:
+          tag_name: kernel_${{ inputs.kernel_mu }}
+          repository: ${{ env.REPO_TARGET }}  # GANTI dengan repo tujuan kamu
+          name: Kernel_${{ inputs.kernel_mu }}
+          body: |
+            ### Kernel Build Information
+            - Version: `${{ inputs.kernel_version }}`
+            - Toolchain: `${{ inputs.kernel_toolchain }}`
+            - Signature: `${{ inputs.kernel_sign }}`
+            - Kernel Type: `${{ inputs.kernel_mu }}`
+            ## Supported Devices
+            | Amlogic | MODEL | WIFI |
+            | -------- | ------- | ------- |
+            | **S905x**  | **HG680P**<br>**B860H** | **ON**<br>**NOT TEST** |
+            | **S905X4** | **ADVAN AT01**<br>**AKARI** | **OFF**<br>**OFF** |
+            | **S905x2** | **HG680FJ** | **NOT TEST** (`-`) |
+
+          files: build/*    
