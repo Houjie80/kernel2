@@ -119,6 +119,11 @@ jobs:
           sudo tar -czf /workdir/build/${{ inputs.rename_rootfs }}.tar.gz ${{ inputs.rename_rootfs }}
           echo -e "${GREEN}✅ Final archive berhasil dibuat: /workdir/build/${{ inputs.rename_rootfs }}.tar.gz${NC}"
 
+      - name: 🧾 Copy hasil build ke workspace
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/build
+          cp -r /workdir/build/* $GITHUB_WORKSPACE   
+
           
       - name: Upload release asset
         uses: svenstaro/upload-release-action@v2
