@@ -120,7 +120,7 @@ jobs:
           echo -e "${GREEN}✅ Final archive berhasil dibuat: /workdir/build/final-${{ inputs.rename_rootfs }}.tar.gz${NC}"
 
           
-      - name: 📤 Upload release asset
+      - name: Upload release asset
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -129,18 +129,40 @@ jobs:
           file_glob: true
           overwrite: true
           body: |
-            - Kernel ready for Armbian / OpenWrt builds.
-            - Source: `${{ inputs.kernel_url }}`
-            - Type: `${{ inputs.kernel_mu }}`
-            - Version: `${{ inputs.rename_rootfs }}`
+            - The kernel can be used to compile Armbian and OpenWrt.
+            - The kernel source code comes from: ${{ inputs.kernel_source }}
+            - The kernel compilation toolchain: ${{ inputs.kernel_toolchain }}
+            - The kernel version: ${{ inputs.kernel_version }}
+            - The kernel nama: ${{ inputs.kernel_sign }}
+            - This is a `${{ inputs.kernel_mu }}` kernel, which can be used in Armbian and OpenWrt.
+            - 这是`稳定版`内核，可以在 Armbian 和 OpenWrt 里使用。
+            ## Supported Devices
+            | Amlogic | MODEL | WIFI |
+            | -------- | ------- | ------- |
+            | **S905x**  | **HG680P**<br>**B860H** | **ON**<br>**NOT TEST** |
+            | **S905X4** | **ADVAN AT01**<br>**AKARI** | **OFF**<br>**OFF** |
+            | **S905x2** | **HG680FJ** | **NOT TEST** (`-`) |
 
-      - name: 📦 Upload Kernel to Secondary Repo
+      - name: Upload Kernel to Release (repo lain)
         uses: softprops/action-gh-release@v1
-        if: success() && !cancelled()
+        if: ${{ env.PACKAGED_STATUS == 'success' || success() }} && !cancelled()
         env:
           GITHUB_TOKEN: ${{ env.PAT }}
         with:
           tag_name: kernel_${{ inputs.kernel_mu }}
-          repository: ${{ env.REPO_TARGET }}
+          repository: ${{ env.REPO_TARGET }}  # GANTI dengan repo tujuan kamu
           name: Kernel_${{ inputs.kernel_mu }}
-          files: build/*
+          body: |
+            ### Kernel Build Information
+            - Version: `${{ inputs.kernel_version }}`
+            - Toolchain: `${{ inputs.kernel_toolchain }}`
+            - Signature: `${{ inputs.kernel_sign }}`
+            - Kernel Type: `${{ inputs.kernel_mu }}`
+            ## Supported Devices
+            | Amlogic | MODEL | WIFI |
+            | -------- | ------- | ------- |
+            | **S905x**  | **HG680P**<br>**B860H** | **ON**<br>**NOT TEST** |
+            | **S905X4** | **ADVAN AT01**<br>**AKARI** | **OFF**<br>**OFF** |
+            | **S905x2** | **HG680FJ** | **NOT TEST** (`-`) |
+
+          files: build/*    
