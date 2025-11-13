@@ -117,7 +117,7 @@ jobs:
 
           cd /workdir/kernel_bundle
           sudo tar -czf /workdir/build/${{ inputs.rename_rootfs }}.tar.gz ${{ inputs.rename_rootfs }}
-          echo -e "${GREEN}✅ Final archive berhasil dibuat: /workdir/build/final-${{ inputs.rename_rootfs }}.tar.gz${NC}"
+          echo -e "${GREEN}✅ Final archive berhasil dibuat: /workdir/build/${{ inputs.rename_rootfs }}.tar.gz${NC}"
 
           
       - name: Upload release asset
