@@ -101,7 +101,7 @@ jobs:
           mkdir -p /workdir/extracted /workdir/final /workdir/build
 
           echo -e "${YELLOW}📦 Mengekstrak file utama...${NC}"
-          sudo tar -xzf /workdir/build/file.tar.gz -C /workdir/extracted || {
+          sudo tar --no-same-owner -xzf /workdir/build/file.tar.gz -C /workdir/extracted || {
             echo -e "${RED}❌ Gagal mengekstrak file utama!${NC}"
             exit 1
           }
@@ -130,7 +130,7 @@ jobs:
 
             echo -e "${YELLOW}📦 Mengarsip ulang: ${filename}.tar.gz${NC}"
             cd "$folder"
-            sudo tar -czf /workdir/final/${filename}.tar.gz . || {
+            sudo tar --no-same-owner --numeric-owner --mode=go+u -czf /workdir/final/${filename}.tar.gz . || {
               echo -e "${RED}❌ Gagal mengarsip ulang ${filename}${NC}"
               cd - > /dev/null
               continue
@@ -144,7 +144,7 @@ jobs:
           cp -r ./* /workdir/kernel_bundle/${{ inputs.rename_rootfs }}/
 
           cd /workdir/kernel_bundle
-          sudo tar -czf /workdir/build/${{ inputs.rename_rootfs }}.tar.gz ${{ inputs.rename_rootfs }}
+          sudo tar --no-same-owner --numeric-owner --mode=go+u -czf /workdir/build/${{ inputs.rename_rootfs }}.tar.gz ${{ inputs.rename_rootfs }}
           echo -e "${GREEN}✅ Final archive berhasil dibuat: /workdir/build/${{ inputs.rename_rootfs }}.tar.gz${NC}"
            
 
