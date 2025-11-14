@@ -101,6 +101,7 @@ jobs:
           mkdir -p /workdir/extracted /workdir/final /workdir/build
 
           echo -e "${YELLOW}📦 Mengekstrak file utama...${NC}"
+          # EKSTRAKSI 1: Menggunakan --no-same-owner untuk mengabaikan kepemilikan arsip
           sudo tar --no-same-owner -xzf /workdir/build/file.tar.gz -C /workdir/extracted || {
             echo -e "${RED}❌ Gagal mengekstrak file utama!${NC}"
             exit 1
@@ -123,7 +124,7 @@ jobs:
 
             echo -e "${YELLOW}📦 Mengekstrak: ${archive} -> ${folder}${NC}"
             mkdir -p "$folder"
-            # PERBAIKAN: Menambahkan --no-same-owner untuk mencegah error kepemilikan
+            # EKSTRAKSI 2: Menggunakan --no-same-owner
             sudo tar --no-same-owner -xzf "$archive" -C "$folder" || {
               echo -e "${RED}❌ Gagal mengekstrak $archive${NC}"
               continue
@@ -131,7 +132,8 @@ jobs:
 
             echo -e "${YELLOW}📦 Mengarsip ulang: ${filename}.tar.gz${NC}"
             cd "$folder"
-            sudo tar --no-same-owner --numeric-owner --mode=go+u -czf /workdir/final/${filename}.tar.gz . || {
+            # REPACK 1: Menggunakan --owner=0 --group=0 untuk memastikan kepemilikan menjadi root (UID 0) di dalam arsip, mengatasi error '. Cannot change ownership' pada direktori saat ini.
+            sudo tar --owner=0 --group=0 --numeric-owner --mode=go+u -czf /workdir/final/${filename}.tar.gz . || {
               echo -e "${RED}❌ Gagal mengarsip ulang ${filename}${NC}"
               cd - > /dev/null
               continue
@@ -145,7 +147,8 @@ jobs:
           cp -r ./* /workdir/kernel_bundle/${{ inputs.rename_rootfs }}/
 
           cd /workdir/kernel_bundle
-          sudo tar --no-same-owner --numeric-owner --mode=go+u -czf /workdir/build/${{ inputs.rename_rootfs }}.tar.gz ${{ inputs.rename_rootfs }}
+          # REPACK 2 (FINAL): Menggunakan --owner=0 --group=0 untuk memastikan kepemilikan root (UID 0) di dalam arsip.
+          sudo tar --owner=0 --group=0 --numeric-owner --mode=go+u -czf /workdir/build/${{ inputs.rename_rootfs }}.tar.gz ${{ inputs.rename_rootfs }}
           echo -e "${GREEN}✅ Final archive berhasil dibuat: /workdir/build/${{ inputs.rename_rootfs }}.tar.gz${NC}"
 
 
