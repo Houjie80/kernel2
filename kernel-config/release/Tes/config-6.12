@@ -9954,7 +9954,7 @@ CONFIG_MTK_WIFI_ONLY=m
 # CONFIG_MT7661_COMBO_CHIP is not set
 # CONFIG_MT7661_WIFI_ONLY is not set
 CONFIG_RTL8189FS=m
-CONFIG_RTL8188EU=m
+# CONFIG_RTL8188EU is not set
 # CONFIG_RTL8822CS is not set
 # CONFIG_RTL8822BU is not set
 # end of Kernel Testing and Coverage
