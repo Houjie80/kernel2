@@ -20,6 +20,7 @@ on:
           - feryw/linux@vim-5.4
           - sib0ndt/linux-6.1.66
           - chewitt/linux@amlogic-6.17.y
+          - tes-rep/linuxx@amlogic-6.17.y
       kernel_version:
         description: "Select kernel version"
         required: false
