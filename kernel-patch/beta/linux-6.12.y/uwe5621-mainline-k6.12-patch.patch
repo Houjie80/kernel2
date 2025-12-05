@@ -1,0 +1,60 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: houjie <you@example.com>
+Date: Sat, 7 Dec 2024 00:00:00 +0700
+Subject: [PATCH] Add UWE5621 WiFi driver base structure for Linux 6.12
+
+---
+ drivers/net/wireless/uwe5621/Kconfig  | 47 +++++++++++++++++++++++++++++
+ drivers/net/wireless/uwe5621/Makefile | 22 +++++++++++++
+ 2 files changed, 69 insertions(+)
+ create mode 100644 drivers/net/wireless/uwe5621/Kconfig
+ create mode 100644 drivers/net/wireless/uwe5621/Makefile
+
+diff --git a/drivers/net/wireless/uwe5621/Kconfig b/drivers/net/wireless/uwe5621/Kconfig
+new file mode 100644
+index 0000000000..aaaaaaaaaa
+--- /dev/null
++++ b/drivers/net/wireless/uwe5621/Kconfig
+@@ -0,0 +1,47 @@
++# SPDX-License-Identifier: GPL-2.0
++
++config UWE5621_WIFI
++    tristate "UWE5621 / UWE5631 WiFi driver"
++    depends on MMC && CFG80211 && WLAN
++    default m
++    help
++      Vendor WiFi driver for the UWE5621/UWE5631 combo chip.
++
++if UWE5621_WIFI
++
++config UWE5621_BSP
++    bool "Enable UWE5621 BSP"
++    default y
++
++config UWE5621_WLAN
++    bool "Enable UWE5621 WLAN"
++    default y
++
++endif
+
+diff --git a/drivers/net/wireless/uwe5621/Makefile b/drivers/net/wireless/uwe5621/Makefile
+new file mode 100644
+index 0000000000..bbbbbbbbbb
+--- /dev/null
++++ b/drivers/net/wireless/uwe5621/Makefile
+@@ -0,0 +1,22 @@
++# SPDX-License-Identifier: GPL-2.0
++
++ccflags-y += -Wno-unused-variable
++ccflags-y += -Wno-unused-function
++ccflags-y += -Wno-unused-label
++ccflags-y += -Wno-int-conversion
++ccflags-y += -Wno-address-of-packed-member
++
++obj-$(CONFIG_UWE5621_WIFI) += bsp/
++obj-$(CONFIG_UWE5621_WIFI) += wifi/
++
++subdir-ccflags-y := -I$(src)/bsp/include \
++                    -I$(src)/wifi/include \
++                    -I$(src)
++
