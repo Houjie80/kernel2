@@ -21,7 +21,7 @@ on:
           - tes-rep/linux@amlogic-6.18
           - sib0ndt/linux-6.1.66
           - chewitt/linux@amlogic-6.17.y
-          - Dirgha80/linux@amlogic-6.17.y
+          - tes-rep/linuxx@amlogic-6.18.y
           - tes-rep/linuxx@amlogic-6.17.y
       kernel_version:
         description: "Select kernel version"
