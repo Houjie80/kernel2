@@ -1,0 +1,82 @@
+name: Force Merge External Commit
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_id:
+        description: "Commit ID dari repo sumber"
+        required: true
+      source_repo:
+        description: "Repo sumber (HTTPS)"
+        required: true
+      target_repo:
+        description: "Repo tujuan (HTTPS)"
+        required: true
+      target_branch:
+        description: "Branch tujuan"
+        required: true
+        default: "main"
+      target_pat:
+        description: "Pilih repo tujuan upload (tes-rep, DIRGHA80, HOUJIE80)"
+        required: false
+        default: "tes-rep"
+        type: choice
+        options:
+          - tes-rep
+          - Dirgha80
+          - Houjie80  
+
+jobs:
+  force_merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set Token and Target Repo
+        id: choose_target
+        run: |
+          case "${{ github.event.inputs.target_repo }}" in
+            tes-rep)
+              echo "PAT=${{ secrets.TARGET_REPO_TES }}" >> $GITHUB_ENV
+            DIRGHA80)
+              echo "PAT=${{ secrets.TARGET_REPO_DIRGHA80 }}" >> $GITHUB_ENV
+            HOUJIE80)
+              echo "PAT=${{ secrets.TARGET_REPO_HOUJIE80 }}" >> $GITHUB_ENV
+            *)
+              echo "::error ::Pilihan repo tidak valid!"; exit 1 ;;
+          esac
+      # Clone target repo menggunakan PAT
+      - name: Clone target repo
+        env:
+          PAT: ${{ env.PAT }}
+        run: |
+          git clone https://$PAT@${{ github.event.inputs.target_repo }} target
+          cd target
+          git checkout ${{ github.event.inputs.target_branch }}
+
+      - name: Set Git identity
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+
+      # Fetch source repo
+      - name: Add source repo & fetch commit
+        working-directory: target
+        run: |
+          git remote add source ${{ github.event.inputs.source_repo }}
+          git fetch source
+
+      # Cherry-pick paksa dengan strategi THEIRs (prioritas commit sumber)
+      - name: Force cherry-pick commit
+        working-directory: target
+        run: |
+          git cherry-pick -X theirs ${{ github.event.inputs.commit_id }} || \
+          (echo "Cherry-pick gagal total. Mengabaikan dan melanjutkan dengan force merge."; \
+           git reset --hard HEAD)
+
+      # Push hasil merge paksa ke repo tujuan
+      - name: Push to target repo
+        working-directory: target
+        env:
+          PAT: ${{ env.PAT }}
+        run: |
+          git push https://$PAT@${{ github.event.inputs.target_repo }} HEAD:${{ github.event.inputs.target_branch }}
