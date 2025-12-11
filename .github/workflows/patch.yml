@@ -17,7 +17,7 @@ on:
           - tes-rep
           - tes-rep@tes
           - feryw@dev
-          - feryw/linux@amlogic-6.18
+          - feryw/linux@aml-6.18
           - tes-rep/linux@amlogic-6.18
           - sib0ndt/linux-6.1.66
           - chewitt/linux@amlogic-6.17.y
