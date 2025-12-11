@@ -10,46 +10,48 @@ on:
         description: "Repo sumber (HTTPS)"
         required: true
       target_repo:
-        description: "Repo tujuan (HTTPS)"
+        description: "Repo tujuan (format: owner/repo)"
         required: true
+        default: "tes-rep/linux-6.12.y"
       target_branch:
         description: "Branch tujuan"
         required: true
         default: "main"
       target_pat:
-        description: "Pilih repo tujuan upload (tes-rep, DIRGHA80, HOUJIE80)"
-        required: false
-        default: "tes-rep"
+        description: "Pilih PAT (tes-rep, Dirgha80, Houjie80)"
         type: choice
+        required: true
+        default: "tes-rep"
         options:
           - tes-rep
           - Dirgha80
-          - Houjie80  
+          - Houjie80
 
 jobs:
   force_merge:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set Token and Target Repo
+      - name: Pilih PAT
         id: choose_target
         run: |
-          case "${{ github.event.inputs.target_repo }}" in
+          case "${{ github.event.inputs.target_pat }}" in
             tes-rep)
-              echo "PAT=${{ secrets.TARGET_REPO_TES }}" >> $GITHUB_ENV
-            DIRGHA80)
-              echo "PAT=${{ secrets.TARGET_REPO_DIRGHA80 }}" >> $GITHUB_ENV
-            HOUJIE80)
-              echo "PAT=${{ secrets.TARGET_REPO_HOUJIE80 }}" >> $GITHUB_ENV
+              echo "PAT=${{ secrets.TARGET_REPO_TES }}" >> $GITHUB_ENV ;;
+            Dirgha80)
+              echo "PAT=${{ secrets.TARGET_REPO_DIRGHA80 }}" >> $GITHUB_ENV ;;
+            Houjie80)
+              echo "PAT=${{ secrets.TARGET_REPO_HOUJIE80 }}" >> $GITHUB_ENV ;;
             *)
-              echo "::error ::Pilihan repo tidak valid!"; exit 1 ;;
+              echo "::error ::Pilihan PAT tidak valid!"
+              exit 1 ;;
           esac
-      # Clone target repo menggunakan PAT
+
       - name: Clone target repo
         env:
           PAT: ${{ env.PAT }}
         run: |
-          git clone https://$PAT@${{ github.event.inputs.target_repo }} target
+          git clone https://$PAT@github.com/${{ github.event.inputs.target_repo }} target
           cd target
           git checkout ${{ github.event.inputs.target_branch }}
 
@@ -58,25 +60,21 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
 
-      # Fetch source repo
       - name: Add source repo & fetch commit
         working-directory: target
         run: |
           git remote add source ${{ github.event.inputs.source_repo }}
           git fetch source
 
-      # Cherry-pick paksa dengan strategi THEIRs (prioritas commit sumber)
-      - name: Force cherry-pick commit
+      - name: Force cherry-pick
         working-directory: target
         run: |
           git cherry-pick -X theirs ${{ github.event.inputs.commit_id }} || \
-          (echo "Cherry-pick gagal total. Mengabaikan dan melanjutkan dengan force merge."; \
-           git reset --hard HEAD)
+          (echo "Gagal total → reset hard"; git reset --hard HEAD)
 
-      # Push hasil merge paksa ke repo tujuan
       - name: Push to target repo
         working-directory: target
         env:
           PAT: ${{ env.PAT }}
         run: |
-          git push https://$PAT@${{ github.event.inputs.target_repo }} HEAD:${{ github.event.inputs.target_branch }}
+          git push https://$PAT@github.com/${{ github.event.inputs.target_repo }} HEAD:${{ github.event.inputs.target_branch }}
