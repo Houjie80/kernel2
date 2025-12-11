@@ -201,6 +201,8 @@ jobs:
           kernel_toolchain: ${{ inputs.kernel_toolchain }}
           kernel_sign: ${{ inputs.kernel_sign }}
           kernel_config: ${{ inputs.kernel_config }}
+          kernel_patch: kernel-patch/beta/s905x4
+          auto_patch: true
           compress_format: xz
           silent_log: true
 
