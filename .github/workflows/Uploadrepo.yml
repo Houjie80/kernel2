@@ -24,7 +24,7 @@ on:
           - tes-rep/linuxx@amlogic-6.18.y
           - tes-rep/linuxx@amlogic-6.17.y
           - tes-rep/linux@linux-6.17.y
-          - tes-rep/linux@amlogic-6.18.y
+          - tes-rep/linux@linux-6.18.y
       kernel_version:
         description: "Select kernel version"
         required: false
