@@ -201,7 +201,7 @@ jobs:
           kernel_toolchain: ${{ inputs.kernel_toolchain }}
           kernel_sign: ${{ inputs.kernel_sign }}
           kernel_config: ${{ inputs.kernel_config }}
-          kernel_patch: kernel-patch/beta
+          kernel_patch: kernel-patch/beta/linux-6.17.y
           auto_patch: true
           compress_format: xz
           silent_log: true
